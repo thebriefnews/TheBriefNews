@@ -255,7 +255,7 @@ $("dateBox").innerHTML = new Date().toLocaleDateString(undefined,{weekday:"long"
 async function loadEnc(){
   if(encPayload) return;                       // embedded blob present
   if(!CONFIG_URL) return;
-  try{ const r=await fetch(CONFIG_URL,{cache:"no-store"}); if(r.ok) encPayload=await r.json(); }catch(e){}
+  try{ const r=await fetch(CONFIG_URL,{cache:"no-store"}); if(r.ok){ let s=(await r.text()).trim(); const i=s.indexOf("{"), j=s.lastIndexOf("}"); if(i>-1&&j>i) s=s.slice(i,j+1); encPayload=JSON.parse(s); } }catch(e){}
 }
 function b64d(s){ const b=atob(s); const u=new Uint8Array(b.length); for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i); return u; }
 async function deriveKey(pw,salt){
