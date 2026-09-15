@@ -1,0 +1,645 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>Daily Briefing</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
+<style>
+  :root{
+    --ink:#0f172a; --muted:#64748b; --faint:#94a3b8; --line:#e6e8ee;
+    --bg:#f4f5f8; --card:#ffffff; --accent:#b91c1c;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{background:var(--bg);color:var(--ink);}
+  .wrap{max-width:520px;margin:0 auto;min-height:100vh;background:var(--bg);}
+
+  header{position:sticky;top:0;z-index:5;background:#fff;border-bottom:1px solid var(--line);}
+  .top{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;}
+  .brand{display:flex;align-items:baseline;gap:9px;cursor:pointer;user-select:none;}
+  .brand .mark{width:8px;height:22px;background:var(--accent);border-radius:2px;transform:skewX(-8deg);}
+  .brand h1{font-size:21px;font-weight:800;letter-spacing:-0.03em;font-family:Georgia,"Times New Roman",serif;}
+  .brand small{font-size:10px;color:var(--faint);letter-spacing:0.14em;text-transform:uppercase;margin-left:2px;}
+  .date{font-size:11px;color:var(--faint);text-align:right;line-height:1.4;}
+
+  .controls{display:flex;gap:10px;align-items:center;padding:0 18px 12px;}
+  .localtag{font-size:13px;font-weight:600;color:var(--muted);}
+  select.city{margin-left:auto;border:1px solid var(--line);background:#fff;border-radius:999px;padding:7px 14px;font-size:13px;font-weight:600;color:var(--ink);cursor:pointer;}
+  .sincebar{padding:0 18px 12px;}
+  .sincebar span{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--accent);background:#fef2f2;border:1px solid #fee2e2;padding:5px 11px;border-radius:999px;}
+  .sincebar button{margin-left:6px;border:none;background:none;color:var(--accent);cursor:pointer;font-weight:700;}
+
+  main{padding:16px 18px 40px;}
+  .lead{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:14px;}
+  .lead .tag{font-size:10px;font-weight:800;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);}
+  .lead h2{font-family:Georgia,serif;font-size:22px;line-height:1.25;margin:8px 0 10px;font-weight:700;}
+  .story{display:flex;gap:13px;padding:15px 4px;border-bottom:1px solid var(--line);}
+  .story:last-child{border-bottom:none;}
+  .av{flex:none;width:34px;height:34px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-weight:800;color:#fff;font-size:14px;}
+  .story .h{font-size:15px;line-height:1.35;font-weight:600;}
+  .story .meta{margin-top:5px;font-size:12px;color:var(--faint);}
+  .dot-sep::before{content:"·";margin:0 6px;}
+  a.reset{color:inherit;text-decoration:none;}
+
+  .state{text-align:center;color:var(--muted);padding:56px 20px;}
+  .state .spin{width:26px;height:26px;border:3px solid var(--line);border-top-color:var(--accent);border-radius:50%;margin:0 auto 14px;animation:spin 0.8s linear infinite;}
+  .state button{margin-top:14px;border:1px solid var(--line);background:#fff;border-radius:999px;padding:8px 18px;font-weight:600;cursor:pointer;color:var(--ink);}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:flex-end;justify-content:center;z-index:20;}
+  @media(min-width:640px){.overlay{align-items:center;}}
+  .pad{width:100%;max-width:330px;background:#fff;border-radius:26px 26px 0 0;padding:26px 24px 30px;}
+  @media(min-width:640px){.pad{border-radius:26px;}}
+  .pad .lab{text-align:center;color:var(--muted);font-size:13px;margin-bottom:18px;}
+  .datesel{display:block;width:100%;border:1px solid var(--line);background:#f8fafc;border-radius:12px;padding:11px 14px;font-size:15px;color:var(--ink);margin-bottom:16px;font-family:inherit;-webkit-appearance:none;}
+  .clock{display:flex;align-items:center;justify-content:center;gap:6px;margin-bottom:24px;font-variant-numeric:tabular-nums;}
+  .clock .d{width:46px;height:60px;border-radius:12px;background:#f1f3f7;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:700;color:var(--ink);}
+  .clock .d.empty{color:#cbd5e1;}
+  .clock .colon{font-size:30px;font-weight:700;color:var(--faint);}
+  .keys{display:grid;grid-template-columns:repeat(3,1fr);gap:11px;}
+  .key{background:#f1f3f7;border:none;border-radius:16px;padding:16px 0;font-size:21px;font-weight:600;color:var(--ink);cursor:pointer;}
+  .key:active{background:#e2e6ee;}
+  .key.icon{display:flex;align-items:center;justify-content:center;color:var(--muted);}
+  .key.icon svg{width:22px;height:22px;}
+  .shake{animation:shk .45s;}
+  @keyframes shk{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-8px)}40%,60%{transform:translateX(8px)}}
+
+  .love{position:fixed;inset:0;z-index:30;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 30px;background:linear-gradient(to bottom,#1e1b4b,#581c87,#881337);}
+  .close{position:absolute;top:18px;right:18px;background:rgba(255,255,255,.12);border:none;color:#ffe4e6;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;}
+  .close svg{width:18px;height:18px;}
+  .love .kicker{font-size:12px;font-weight:300;letter-spacing:0.2em;text-transform:uppercase;color:rgba(254,205,211,.85);margin-bottom:26px;}
+  .love .reason{font-family:Georgia,"Times New Roman",serif;font-size:27px;line-height:1.5;color:#fff5f7;max-width:470px;animation:fadeUp 1.4s ease both;}
+  @media(min-width:640px){.love .reason{font-size:33px;}}
+  .love .sig{margin-top:42px;display:flex;align-items:center;gap:12px;color:rgba(254,205,211,.75);font-size:12px;letter-spacing:.05em;}
+  .love .sig svg{width:15px;height:15px;}
+  .heart{position:absolute;bottom:-40px;color:#fda4af;opacity:.2;}
+  @keyframes floatUp{0%{transform:translateY(0) scale(1);opacity:0}10%{opacity:.25}100%{transform:translateY(-105vh) scale(1.3);opacity:0}}
+  @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+  .love .note{margin-top:30px;width:100%;max-width:420px;animation:fadeUp 1.8s ease both;}
+  .noteView{min-height:20px;font-size:14px;line-height:1.55;color:#ffe4e6;opacity:.92;cursor:pointer;}
+  .noteView .empty{opacity:.55;font-style:italic;}
+  .noteView .stamp{display:block;margin-top:7px;font-size:11px;color:rgba(254,205,211,.6);}
+  .noteEdit textarea{width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:12px;color:#fff5f7;font-family:inherit;font-size:15px;line-height:1.5;padding:11px 13px;resize:none;outline:none;}
+  .noteEdit textarea:focus{border-color:rgba(253,164,175,.7);}
+  .noteEdit textarea::placeholder{color:rgba(255,228,230,.5);}
+  .noteBtns{display:flex;justify-content:flex-end;gap:10px;margin-top:9px;}
+  .noteBtns button{border:none;border-radius:999px;padding:7px 16px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,.12);color:#ffe4e6;}
+  .noteBtns #noteSave{background:#fda4af;color:#4c0519;}
+  .seen{font-size:12px;color:rgba(254,205,211,.8);min-width:1px;}
+  .lfoot{position:absolute;bottom:34px;display:flex;align-items:center;gap:14px;}
+  .ring{position:relative;width:38px;height:38px;}
+  .ring .count{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#ffe4e6;}
+  .mute{background:rgba(255,255,255,.1);border:none;border-radius:50%;padding:9px;color:#ffe4e6;cursor:pointer;}
+  .mute svg{width:16px;height:16px;display:block;}
+  .hidden{display:none !important;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ===== NEWS ===== -->
+  <div id="newsScreen">
+    <header>
+      <div class="top">
+        <div class="brand" id="brandBtn">
+          <span class="mark"></span>
+          <h1>The Briefing</h1>
+          <small>Local</small>
+        </div>
+        <div class="date" id="dateBox"></div>
+      </div>
+      <div class="controls">
+        <span class="localtag">UK · Local news</span>
+        <select class="city" id="citySel"></select>
+      </div>
+      <div class="sincebar hidden" id="sinceBar"></div>
+    </header>
+    <main id="feed"></main>
+  </div>
+
+  <!-- ===== TIME ENTRY ===== -->
+  <div class="overlay hidden" id="overlay">
+    <div class="pad" id="pad">
+      <div class="lab">Jump to stories since…</div>
+      <input type="date" id="dateSel" class="datesel" />
+      <div class="clock" id="clock"></div>
+      <div class="keys" id="keys"></div>
+    </div>
+  </div>
+
+  <!-- ===== LOVE ===== -->
+  <div class="love hidden" id="loveScreen">
+    <button class="close" id="closeLove" aria-label="Close">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <div class="kicker" id="kicker"></div>
+    <div class="reason" id="reason"></div>
+    <div class="sig">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+      <span>forever &amp; then some</span>
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+    </div>
+    <div class="note" id="noteBlock">
+      <div class="noteView" id="noteView"></div>
+      <div class="noteEdit hidden" id="noteEdit">
+        <textarea id="noteInput" maxlength="240" rows="2" placeholder="leave a little note…"></textarea>
+        <div class="noteBtns">
+          <button id="noteCancel" type="button">cancel</button>
+          <button id="noteSave" type="button">save</button>
+        </div>
+      </div>
+    </div>
+    <div class="lfoot">
+      <div class="seen" id="seen"></div>
+      <div class="ring">
+        <svg viewBox="0 0 36 36" style="transform:rotate(-90deg)">
+          <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="3"/>
+          <circle id="ringFg" cx="18" cy="18" r="15" fill="none" stroke="#fda4af" stroke-width="3" stroke-linecap="round"/>
+        </svg>
+        <div class="count" id="count"></div>
+      </div>
+      <button class="mute" id="stopBtn" aria-label="Stop music"></button>
+      <button class="mute" id="muteBtn" aria-label="Mute"></button>
+    </div>
+  </div>
+
+</div>
+
+<script>
+/* ============================================================================
+   SETTINGS
+   ========================================================================== */
+const REVEAL_SECONDS = 20;        // fallback reveal length (config overrides)
+
+/* ---- LOCKED MESSAGES (encrypted) ------------------------------------------
+   Your messages are encrypted with your secret TIME as the key. This page only
+   ever holds the encrypted blob — the time itself is NEVER written here, so it
+   can't be found by inspecting or "view source". Correct time decrypts and
+   shows the note; any other time just fails and filters the news.
+   Make your own blob with the included encrypt.html, then paste it below.     */
+const ENCRYPTED_CONFIG = {"v": 1, "salt": "+jBgIfuSvlar2K0BorQN0A==", "iv": "2pF00oe+3VyYDTmx", "ct": "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"};
+
+/* ...or host the encrypted blob as a file and put its RAW url here instead: */
+const CONFIG_URL = "";
+
+/* Reliable local news. Get a FREE key at https://gnews.io/ (2 min, 100/day)
+   and paste it below. With a key the news loads fast and dependably.
+   Leave it "" and the app falls back to free public relays, which work but
+   can be slow or occasionally fail. */
+const NEWS_API_KEY = "";
+
+/* Background song. This is set to play a file named song.mp3 that sits next to
+   index.html — just add your song.mp3 to the repo and it becomes the background
+   sound the moment the hidden page opens.
+   • To use a different filename, change "song.mp3" below.
+   • To use a link instead, paste a direct https mp3 url (e.g. a GitHub raw url).
+   • Set it back to "" to use the soft built-in melody.
+   If the file is missing or can't play, it quietly falls back to the built-in melody. */
+const MUSIC_URL = "song.mp3";
+
+/* Shared note + "seen by" counter.
+   These use the app's OWN backend (the /api functions included in this project),
+   so there's no separate service to sign up for. On Cloudflare Pages, add a free
+   KV store once (steps in the README) and both light up: the note syncs between
+   phones and the counter shows how many different people have opened the page.
+   Where no backend is available (e.g. plain GitHub Pages), the note quietly
+   falls back to this-device-only and the counter stays hidden. The note is
+   encrypted with your secret time before it leaves the phone, so the server only
+   ever stores unreadable text. */
+
+/* Built-in fallback used only until/if the GitHub config loads. */
+const FALLBACK_REASONS = [
+  "Because the day feels lighter the moment I remember you exist.",
+  "Because you turn the most ordinary Tuesday into somewhere I want to be.",
+  "Because your laugh is my favourite sound in any room.",
+  "Because home stopped being a place and started being you.",
+  "Because you listen with your whole heart, not just your ears.",
+  "Because loving you never once felt like effort.",
+  "Because your hand in mine still feels like the safest place on earth.",
+  "Because the future feels gentle when I picture it with you in it.",
+  "Because a bad day loses its power the second I hear your voice.",
+  "Because I'd choose you in a hundred lifetimes, in any version of the story.",
+];
+
+const AREAS = {
+  GB: { hl:"en-GB", gl:"GB", ceid:"GB:en",
+        cities:["London","Manchester","Birmingham","Leeds","Glasgow","Liverpool","Edinburgh","Bristol","Sheffield","Cardiff"] },
+};
+
+/* ========================================================================== */
+const $ = (id)=>document.getElementById(id);
+const country="GB";
+let city=localStorage.getItem("tb_city")||"London";
+let articles=[], sinceStamp=null, sinceLabel="";
+let entry="", muted=false, musicStopped=false, timer=null, remaining=REVEAL_SECONDS, synth=null, loop=null, audioEl=null;
+let unlockTime=null, currentNote=null, currentNoteText="";
+
+let reasons = FALLBACK_REASONS.slice();
+let revealSeconds = REVEAL_SECONDS;
+let startDate = new Date(2025,0,1);   // day the sequence begins (from encrypted config)
+let musicUrl = MUSIC_URL;
+let encPayload = ENCRYPTED_CONFIG;    // {salt,iv,ct} — encrypted, never the time
+
+const AV_COLORS=["#b91c1c","#0369a1","#047857","#7c3aed","#c2410c","#0f766e","#9333ea","#be123c"];
+const DEL="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 5H8l-7 7 7 7h13a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z'/><line x1='18' y1='9' x2='12' y2='15'/><line x1='12' y1='9' x2='18' y2='15'/></svg>";
+const VOL_ON="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5'/><path d='M15.5 8.5a5 5 0 0 1 0 7'/><path d='M19 5a9 9 0 0 1 0 14'/></svg>";
+const VOL_OFF="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5'/><line x1='22' y1='9' x2='16' y2='15'/><line x1='16' y1='9' x2='22' y2='15'/></svg>";
+const STOP_ICON="<svg viewBox='0 0 24 24' fill='currentColor'><rect x='6' y='6' width='12' height='12' rx='2'/></svg>";
+const PLAY_ICON="<svg viewBox='0 0 24 24' fill='currentColor'><path d='M8 5v14l11-7z'/></svg>";
+
+$("dateBox").innerHTML = new Date().toLocaleDateString(undefined,{weekday:"long"}) + "<br>" +
+  new Date().toLocaleDateString(undefined,{day:"numeric",month:"long"});
+
+/* ---- encrypted config (the entered TIME is the decryption key) ---- */
+async function loadEnc(){
+  if(encPayload) return;                       // embedded blob present
+  if(!CONFIG_URL) return;
+  try{ const r=await fetch(CONFIG_URL,{cache:"no-store"}); if(r.ok) encPayload=await r.json(); }catch(e){}
+}
+function b64d(s){ const b=atob(s); const u=new Uint8Array(b.length); for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i); return u; }
+async function deriveKey(pw,salt){
+  const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:250000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["decrypt"]);
+}
+async function unlockWith(t){                   // returns the config, or null if wrong
+  if(!encPayload) return null;
+  try{
+    const key=await deriveKey(t,b64d(encPayload.salt));
+    const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:b64d(encPayload.iv)},key,b64d(encPayload.ct));
+    return JSON.parse(new TextDecoder().decode(pt));
+  }catch(e){ return null; }                     // wrong key => auth fails => null
+}
+/* ---- shared note (encrypted with the secret time) + unique "seen by" count ----
+   Talks to this site's own /api endpoints (Cloudflare Pages functions + KV).
+   • /api/seen : records this visitor by IP (hashed server-side) and returns the
+                 number of DISTINCT people — the same person doesn't add up.
+   • /api/note : stores/returns ONE shared note. It's encrypted here first, so the
+                 server only ever holds unreadable text.
+   If the endpoints aren't there, the note falls back to this device and the
+   counter is hidden. */
+let noteBackend="local";   // "api" once the backend answers
+function b64e(buf){ const a=new Uint8Array(buf); let s=""; for(let i=0;i<a.length;i++) s+=String.fromCharCode(a[i]); return btoa(s); }
+async function noteKey(salt){
+  const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(unlockTime||""),"PBKDF2",false,["deriveKey"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:250000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
+}
+async function encNote(text){
+  const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
+  const key=await noteKey(salt);
+  const ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,new TextEncoder().encode(text));
+  return {salt:b64e(salt), iv:b64e(iv), ct:b64e(ct), updatedAt:Date.now()};
+}
+async function decNote(o){
+  try{
+    const key=await noteKey(b64d(o.salt));
+    const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:b64d(o.iv)},key,b64d(o.ct));
+    return new TextDecoder().decode(pt);
+  }catch(e){ return null; }
+}
+async function apiSeen(){
+  try{
+    const r=await fetchTimeout("/api/seen",7000,{method:"POST"});
+    if(!r.ok) return null;
+    const d=await r.json();
+    return (typeof d.count==="number") ? d.count : null;
+  }catch(e){ return null; }
+}
+async function apiGetNote(){
+  try{
+    const r=await fetchTimeout("/api/note",7000);
+    if(!r.ok) return {ok:false};
+    return {ok:true, note:await r.json()};
+  }catch(e){ return {ok:false}; }
+}
+async function apiPutNote(o){
+  try{ const r=await fetchTimeout("/api/note",7000,{method:"PUT",body:JSON.stringify(o)}); return r.ok; }
+  catch(e){ return false; }
+}
+async function saveNote(o){
+  if(noteBackend==="api" && await apiPutNote(o)) return;
+  localStorage.setItem("tb_note",JSON.stringify(o));   // fallback: this device only
+}
+function escapeHtml(s){ return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+/* A serial number the list-maker added for reference (e.g. "34. " or "34) ")
+   is never part of the message itself — strip it before anything is shown. */
+function stripSerial(s){ return String(s).replace(/^\s*\d+\s*[.)\-:]\s+/,"").trim(); }
+
+function applyCfg(c){
+  if(Array.isArray(c.reasons)&&c.reasons.length) reasons=c.reasons.map(stripSerial).filter(Boolean);
+  if(c.revealSeconds) revealSeconds=+c.revealSeconds||revealSeconds;
+  if(c.startDate){ const d=new Date(c.startDate+"T00:00:00"); if(!isNaN(d)) startDate=d; }
+  if(c.musicUrl) musicUrl=c.musicUrl;
+}
+
+function today(){
+  let n=Math.floor((Date.now()-startDate)/86400000);
+  if(n<0) n=0;                       // before the start date, show #1
+  const i=n%reasons.length;          // walk the list in order, then loop
+  return {text:reasons[i], seq:n+1};
+}
+
+/* ---- relative time ---- */
+function ago(d){
+  const s=Math.floor((Date.now()-d)/1000);
+  if(s<60) return "just now";
+  if(s<3600) return Math.floor(s/60)+"m ago";
+  if(s<86400) return Math.floor(s/3600)+"h ago";
+  return Math.floor(s/86400)+"d ago";
+}
+
+/* ---- real local news via Google News RSS (keyless) ---- */
+function rssGeo(){    const a=AREAS[country]; return "https://news.google.com/rss/headlines/section/geo/"+encodeURIComponent(city)+"?hl="+a.hl+"&gl="+a.gl+"&ceid="+encodeURIComponent(a.ceid); }
+function rssSearch(){ const a=AREAS[country]; return "https://news.google.com/rss/search?q="+encodeURIComponent(city+" news")+"&hl="+a.hl+"&gl="+a.gl+"&ceid="+encodeURIComponent(a.ceid); }
+function rssTop(){    const a=AREAS[country]; return "https://news.google.com/rss?hl="+a.hl+"&gl="+a.gl+"&ceid="+encodeURIComponent(a.ceid); }
+
+async function fetchTimeout(u,ms,opts){
+  const c=new AbortController(); const id=setTimeout(()=>c.abort(),ms||7000);
+  try{ return await fetch(u,Object.assign({cache:"no-store",signal:c.signal},opts||{})); }
+  finally{ clearTimeout(id); }
+}
+async function tryProxy(url){
+  const proxies=[
+    u=>"https://api.allorigins.win/raw?url="+encodeURIComponent(u),
+    u=>"https://api.codetabs.com/v1/proxy/?quest="+encodeURIComponent(u),
+    u=>"https://corsproxy.io/?url="+encodeURIComponent(u),
+    u=>"https://api.allorigins.win/get?url="+encodeURIComponent(u),   // JSON-wrapped
+    u=>"https://thingproxy.freeboard.io/fetch/"+u,
+  ];
+  for(const mk of proxies){
+    try{
+      const r=await fetchTimeout(mk(url),7000);
+      if(!r.ok) continue;
+      let txt=await r.text();
+      if(txt && txt[0]==="{" && txt.indexOf('"contents"')>-1){      // unwrap allorigins /get
+        try{ txt=(JSON.parse(txt).contents)||""; }catch(e){}
+      }
+      if(txt && txt.indexOf("<item")>-1) return txt;
+    }catch(e){}
+  }
+  return null;
+}
+function parseRSS(xml){
+  const doc=new DOMParser().parseFromString(xml,"text/xml");
+  return [...doc.querySelectorAll("item")].map(it=>{
+    let title=(it.querySelector("title")||{}).textContent||"";
+    const link=(it.querySelector("link")||{}).textContent||"#";
+    const pub=(it.querySelector("pubDate")||{}).textContent||"";
+    let source=(it.querySelector("source")||{}).textContent||"";
+    if(!source && title.lastIndexOf(" - ")>-1){ source=title.slice(title.lastIndexOf(" - ")+3); title=title.slice(0,title.lastIndexOf(" - ")); }
+    return {title:title.trim(), link, date:pub?new Date(pub):new Date(), source:source.trim()||"News"};
+  }).filter(a=>a.title);
+}
+async function fetchGNews(){
+  if(!NEWS_API_KEY) return null;
+  try{
+    const a=AREAS[country];
+    const u="https://gnews.io/api/v4/search?q="+encodeURIComponent(city)+
+      "&country="+a.gl.toLowerCase()+"&lang=en&max=14&apikey="+NEWS_API_KEY;
+    const r=await fetch(u,{cache:"no-store"});
+    if(!r.ok) return null;
+    const d=await r.json();
+    if(!d.articles||!d.articles.length) return null;
+    return d.articles.map(x=>({title:x.title, link:x.url,
+      date:x.publishedAt?new Date(x.publishedAt):new Date(),
+      source:(x.source&&x.source.name)||"News"}));
+  }catch(e){ return null; }
+}
+async function fetchViaSelfApi(){
+  // Served by the included serverless function on Cloudflare Pages / Netlify / Vercel.
+  // Same-origin, no CORS, no third-party proxy — the reliable keyless path.
+  try{
+    const r=await fetchTimeout("/api/news?city="+encodeURIComponent(city),8000);
+    if(!r.ok) return null;
+    const d=await r.json();
+    if(!d || !d.items || !d.items.length) return null;
+    return d.items.map(x=>({title:x.title, link:x.link||"#",
+      date:x.pubDate?new Date(String(x.pubDate).replace(" ","T")):new Date(),
+      source:x.source||"News"})).filter(a=>a.title);
+  }catch(e){ return null; }
+}
+async function fetchViaRss2Json(){
+  for(const build of [rssGeo, rssSearch, rssTop]){
+    try{
+      const u="https://api.rss2json.com/v1/api.json?rss_url="+encodeURIComponent(build());
+      const r=await fetchTimeout(u,8000);
+      if(!r.ok) continue;
+      const d=await r.json();
+      if(d && d.status==="ok" && d.items && d.items.length){
+        return d.items.map(x=>{
+          let title=(x.title||"").trim(), source="";
+          const i=title.lastIndexOf(" - ");
+          if(i>-1){ source=title.slice(i+3); title=title.slice(0,i); }
+          return {title, link:x.link||"#", date:x.pubDate?new Date(x.pubDate.replace(" ","T")):new Date(), source:source||"News"};
+        }).filter(a=>a.title);
+      }
+    }catch(e){}
+  }
+  return null;
+}
+async function loadNews(){
+  feedState("loading");
+  let list=await fetchViaSelfApi();            // reliable, no key (Cloudflare/Netlify/Vercel)
+  if(!list) list=await fetchGNews();           // reliable, needs a free key (works on any host)
+  if(!list) list=await fetchViaRss2Json();     // keyless public relay (best-effort)
+  if(!list){                                   // last resort: generic relays, several endpoints
+    for(const build of [rssGeo, rssSearch, rssTop]){
+      const xml=await tryProxy(build());
+      if(xml){ const parsed=parseRSS(xml); if(parsed.length){ list=parsed; break; } }
+    }
+  }
+  if(!list||!list.length){ feedState("error"); return; }
+  articles=list.slice(0,14);
+  render();
+}
+
+function feedState(kind){
+  if(kind==="loading") $("feed").innerHTML='<div class="state"><div class="spin"></div>Loading '+city+' stories…</div>';
+  if(kind==="error")   $("feed").innerHTML='<div class="state">Couldn\u2019t reach the news service.<br><span style="font-size:12px;color:var(--faint)">The free relays can be flaky. Make sure the page is opened from its hosted <b>https</b> link (not the file itself); a free GNews key makes it reliable.</span><br><button onclick="loadNews()">Try again</button></div>';
+}
+function render(){
+  let list=articles;
+  if(sinceStamp){
+    list=articles.filter(a=>a.date>=sinceStamp);
+    $("sinceBar").classList.remove("hidden");
+    $("sinceBar").innerHTML='<span>Stories since '+sinceLabel+'</span><button onclick="clearSince()">clear</button>';
+  }else{
+    $("sinceBar").classList.add("hidden");
+  }
+  if(!list.length){
+    if(sinceStamp){ $("feed").innerHTML='<div class="state">No stories published since '+sinceLabel+'.<br><button onclick="clearSince()">Show latest</button></div>'; }
+    else{ feedState("error"); }
+    return;
+  }
+  const [lead,...rest]=list;
+  const av=(s)=>{const c=AV_COLORS[(s.charCodeAt(0)||65)%AV_COLORS.length];return '<div class="av" style="background:'+c+'">'+(s[0]||"N").toUpperCase()+'</div>';};
+  let html='<a class="reset" href="'+lead.link+'" target="_blank" rel="noopener"><div class="lead"><div class="tag">'+city+' · Top story</div><h2>'+lead.title+'</h2><div style="color:var(--faint);font-size:12px">'+lead.source+'<span class="dot-sep"></span>'+ago(lead.date)+'</div></div></a>';
+  html+=rest.map(a=>'<a class="reset" href="'+a.link+'" target="_blank" rel="noopener"><div class="story">'+av(a.source)+'<div><div class="h">'+a.title+'</div><div class="meta">'+a.source+'<span class="dot-sep"></span>'+ago(a.date)+'</div></div></div></a>').join("");
+  $("feed").innerHTML=html;
+}
+function clearSince(){ sinceStamp=null; sinceLabel=""; render(); }
+
+/* ---- area (UK cities) ---- */
+function fillCities(){
+  $("citySel").innerHTML=AREAS[country].cities.map(c=>'<option '+(c===city?"selected":"")+'>'+c+'</option>').join("");
+}
+$("citySel").onchange=(e)=>{ city=e.target.value; localStorage.setItem("tb_city",city); sinceStamp=null; sinceLabel=""; loadNews(); };
+
+/* ---- time entry ---- */
+function renderClock(){
+  const d=entry.padEnd(4,"·").split("");
+  $("clock").innerHTML=
+    '<div class="d '+(entry.length<1?"empty":"")+'">'+d[0]+'</div>'+
+    '<div class="d '+(entry.length<2?"empty":"")+'">'+d[1]+'</div>'+
+    '<div class="colon">:</div>'+
+    '<div class="d '+(entry.length<3?"empty":"")+'">'+d[2]+'</div>'+
+    '<div class="d '+(entry.length<4?"empty":"")+'">'+d[3]+'</div>';
+}
+function buildKeys(){
+  const keys=["1","2","3","4","5","6","7","8","9","","0","del"];
+  $("keys").innerHTML=keys.map(k=>k===""?"<div></div>":k==="del"?'<button class="key icon" data-k="del">'+DEL+'</button>':'<button class="key" data-k="'+k+'">'+k+'</button>').join("");
+  $("keys").querySelectorAll("button").forEach(b=>b.onclick=()=>press(b.dataset.k));
+}
+function openPad(){ entry=""; renderClock(); const d=new Date(); d.setMinutes(d.getMinutes()-d.getTimezoneOffset()); $("dateSel").value=d.toISOString().slice(0,10); $("overlay").classList.remove("hidden"); }
+function closePad(){ $("overlay").classList.add("hidden"); entry=""; }
+function press(k){
+  if(k==="del"){ entry=entry.slice(0,-1); renderClock(); return; }
+  if(entry.length>=4) return;
+  const pos=entry.length;
+  if(pos===0 && +k>2) return;
+  if(pos===1 && entry[0]==="2" && +k>3) return;
+  if(pos===2 && +k>5) return;
+  entry+=k; renderClock();
+  if(entry.length===4){
+    const t=entry.slice(0,2)+":"+entry.slice(2);
+    handleTime(t);
+  }
+}
+async function handleTime(t){
+  const cfg=await unlockWith(t);          // correct time decrypts; wrong => null
+  if(cfg){ unlockTime=t; applyCfg(cfg); setTimeout(showLove,180); return; }
+  const dv=$("dateSel").value;            // yyyy-mm-dd (news only)
+  const [h,m]=t.split(":").map(Number);
+  const base=dv?new Date(dv+"T00:00:00"):new Date();
+  base.setHours(h,m,0,0);
+  sinceStamp=base;
+  sinceLabel=base.toLocaleDateString(undefined,{day:"numeric",month:"short"})+", "+t;
+  closePad(); render();
+}
+
+/* ---- music ---- */
+async function startMusic(){
+  if(musicUrl){                          // your own song, if provided
+    try{
+      if(!audioEl){ audioEl=new Audio(); audioEl.loop=true; }
+      if(audioEl.getAttribute("src")!==musicUrl){ audioEl.src=musicUrl; }
+      audioEl.volume=muted?0:0.85;
+      audioEl.currentTime=0;
+      await audioEl.play();
+      return;
+    }catch(e){ /* if it can't play, fall back to the built-in melody */ }
+  }
+  try{                                   // soft built-in generative melody
+    await Tone.start();
+    const reverb=new Tone.Reverb({decay:8,wet:.6}).toDestination();
+    synth=new Tone.PolySynth(Tone.Synth,{oscillator:{type:"sine"},envelope:{attack:1.2,decay:.4,sustain:.7,release:4},volume:-14}).connect(reverb);
+    const notes=["C4","E4","G4","A4","E4","G4","B4","A4"];let i=0;
+    loop=new Tone.Loop((t)=>{synth.triggerAttackRelease(notes[i%notes.length],"2n",t);if(i%2===0)synth.triggerAttackRelease(notes[(i+2)%notes.length],"1n",t+.05);i++;},"2n");
+    Tone.Transport.bpm.value=60;Tone.Transport.start();loop.start(0);
+    if(muted&&synth)synth.volume.value=-Infinity;
+  }catch(e){}
+}
+function stopMusic(){
+  if(audioEl){try{audioEl.pause();audioEl.currentTime=0;}catch(e){}}
+  try{loop&&loop.stop();loop&&loop.dispose();synth&&synth.dispose();Tone.Transport.stop();}catch(e){}loop=null;synth=null;
+}
+
+/* ---- love reveal (no history, no trace) ---- */
+const RC=2*Math.PI*15; $("ringFg").style.strokeDasharray=RC;
+function updateRing(){ $("count").textContent=remaining; $("ringFg").style.strokeDashoffset=RC*(1-remaining/revealSeconds); }
+function showLove(){
+  const t=today();
+  $("kicker").textContent="reason no. "+t.seq+" that i love you";
+  $("reason").textContent=t.text;
+  closePad(); $("loveScreen").classList.remove("hidden");
+  remaining=revealSeconds; updateRing();
+  musicStopped=false; $("stopBtn").innerHTML=STOP_ICON;
+  if(!muted) startMusic();
+  startCountdown();
+  loadSeen(); loadNote();
+}
+function startCountdown(){ clearInterval(timer); remaining=revealSeconds; updateRing(); timer=setInterval(()=>{remaining--;updateRing();if(remaining<=0)endLove();},1000); }
+function pauseCountdown(){ clearInterval(timer); timer=null; }
+function endLove(){ clearInterval(timer); timer=null; stopMusic(); $("loveScreen").classList.add("hidden"); entry=""; $("noteEdit").classList.add("hidden"); $("noteView").classList.remove("hidden"); }
+
+/* seen-by count: record this person (by IP, server-side) then show the number */
+async function loadSeen(){
+  $("seen").textContent="";
+  const n=await apiSeen();
+  if(n!=null) $("seen").textContent="seen by "+n+(n===1?" person":" people");
+}
+
+/* shared note: load, show, edit, save */
+async function loadNote(){
+  const res=await apiGetNote();
+  if(res.ok){ noteBackend="api"; currentNote=res.note; }
+  else{ noteBackend="local"; const l=localStorage.getItem("tb_note"); currentNote=l?JSON.parse(l):null; }
+  currentNoteText = currentNote ? (await decNote(currentNote))||"" : "";
+  renderNote();
+}
+function renderNote(){
+  const v=$("noteView");
+  if(currentNoteText && currentNoteText.trim()){
+    v.innerHTML=escapeHtml(currentNoteText)+'<span class="stamp">tap to edit · updated '+ago(currentNote.updatedAt)+'</span>';
+  }else{
+    v.innerHTML='<span class="empty">tap to leave a little note…</span>';
+  }
+  $("noteEdit").classList.add("hidden");
+  v.classList.remove("hidden");
+}
+$("noteView").onclick=()=>{
+  pauseCountdown();
+  $("noteInput").value=currentNoteText;
+  $("noteView").classList.add("hidden");
+  $("noteEdit").classList.remove("hidden");
+  $("noteInput").focus();
+};
+$("noteCancel").onclick=()=>{ renderNote(); startCountdown(); };
+$("noteSave").onclick=async ()=>{
+  const text=$("noteInput").value.trim();
+  $("noteSave").textContent="saving…"; $("noteSave").disabled=true;
+  const o=await encNote(text);
+  await saveNote(o);
+  currentNote=o; currentNoteText=text;
+  $("noteSave").textContent="save"; $("noteSave").disabled=false;
+  renderNote(); startCountdown();
+};
+
+/* ---- floating hearts ---- */
+(function(){
+  const svg="<svg viewBox='0 0 24 24' fill='currentColor' style='width:100%;height:100%'><path d='M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z'/></svg>";
+  for(let i=0;i<9;i++){const h=document.createElement("div");h.className="heart";h.innerHTML=svg;const s=14+(i%4)*8;h.style.left=((i*11+6)%92)+"%";h.style.width=s+"px";h.style.height=s+"px";h.style.animation="floatUp "+(9+(i%5)*2)+"s linear "+(i*.9)+"s infinite";$("loveScreen").insertBefore(h,$("loveScreen").firstChild);}
+})();
+
+/* ---- wire up ---- */
+$("brandBtn").onclick=openPad;
+$("overlay").onclick=(e)=>{ if(e.target.id==="overlay") closePad(); };
+$("closeLove").onclick=endLove;
+$("muteBtn").innerHTML=VOL_ON;
+$("muteBtn").onclick=()=>{ muted=!muted; $("muteBtn").innerHTML=muted?VOL_OFF:VOL_ON; if(synth)synth.volume.value=muted?-Infinity:-14; if(audioEl)audioEl.volume=muted?0:0.85; };
+$("stopBtn").innerHTML=STOP_ICON;
+$("stopBtn").onclick=()=>{
+  if(musicStopped){                        // currently stopped -> start it again
+    musicStopped=false; $("stopBtn").innerHTML=STOP_ICON;
+    $("stopBtn").setAttribute("aria-label","Stop music");
+    if(!muted) startMusic();
+  }else{                                    // currently playing -> stop it
+    musicStopped=true; stopMusic(); $("stopBtn").innerHTML=PLAY_ICON;
+    $("stopBtn").setAttribute("aria-label","Play music");
+  }
+};
+buildKeys(); fillCities(); loadEnc(); loadNews();
+</script>
+</body>
+</html>
