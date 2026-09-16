@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
 <title>Daily Briefing</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
 <style>
@@ -49,7 +49,7 @@
 
   .overlay{position:fixed;inset:0;background:rgba(15,23,42,.45);display:flex;align-items:flex-end;justify-content:center;z-index:20;}
   @media(min-width:640px){.overlay{align-items:center;}}
-  .pad{width:100%;max-width:330px;background:#fff;border-radius:26px 26px 0 0;padding:26px 24px 30px;}
+  .pad{width:100%;max-width:330px;background:#fff;border-radius:26px 26px 0 0;padding:26px 24px calc(30px + env(safe-area-inset-bottom,0px));}
   @media(min-width:640px){.pad{border-radius:26px;}}
   .pad .lab{text-align:center;color:var(--muted);font-size:13px;margin-bottom:18px;}
   .datesel{display:block;width:100%;border:1px solid var(--line);background:#f8fafc;border-radius:12px;padding:11px 14px;font-size:15px;color:var(--ink);margin-bottom:16px;font-family:inherit;-webkit-appearance:none;}
@@ -65,18 +65,22 @@
   .shake{animation:shk .45s;}
   @keyframes shk{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-8px)}40%,60%{transform:translateX(8px)}}
 
-  .love{position:fixed;inset:0;z-index:30;overflow:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:0 30px;background:linear-gradient(to bottom,#1e1b4b,#581c87,#881337);}
-  .close{position:absolute;top:18px;right:18px;background:rgba(255,255,255,.12);border:none;color:#ffe4e6;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:3;}
+  .love{position:fixed;inset:0;z-index:30;overflow:hidden;background:linear-gradient(to bottom,#1e1b4b,#581c87,#881337);}
+  .loveScroll{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;
+    padding:calc(env(safe-area-inset-top,0px) + 58px) 26px calc(env(safe-area-inset-bottom,0px) + 112px);}
+  .loveScroll>:first-child{margin-top:auto;}   /* centres the note when it fits… */
+  .loveScroll>:last-child{margin-bottom:auto;}  /* …and lets it scroll when it doesn't */
+  .close{position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);right:16px;background:rgba(255,255,255,.12);border:none;color:#ffe4e6;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:4;}
   .close svg{width:18px;height:18px;}
-  .love .kicker{font-size:12px;font-weight:300;letter-spacing:0.2em;text-transform:uppercase;color:rgba(254,205,211,.85);margin-bottom:26px;}
-  .love .reason{font-family:Georgia,"Times New Roman",serif;font-size:27px;line-height:1.5;color:#fff5f7;max-width:470px;animation:fadeUp 1.4s ease both;}
+  .love .kicker{font-size:12px;font-weight:300;letter-spacing:0.2em;text-transform:uppercase;color:rgba(254,205,211,.85);margin-bottom:20px;}
+  .love .reason{font-family:Georgia,"Times New Roman",serif;font-size:clamp(20px,5.7vw,31px);line-height:1.5;color:#fff5f7;max-width:470px;overflow-wrap:break-word;animation:fadeUp 1.4s ease both;}
   @media(min-width:640px){.love .reason{font-size:33px;}}
-  .love .sig{margin-top:42px;display:flex;align-items:center;gap:12px;color:rgba(254,205,211,.75);font-size:12px;letter-spacing:.05em;}
+  .love .sig{margin-top:30px;display:flex;align-items:center;gap:12px;color:rgba(254,205,211,.75);font-size:12px;letter-spacing:.05em;}
   .love .sig svg{width:15px;height:15px;}
   .heart{position:absolute;bottom:-40px;color:#fda4af;opacity:.2;}
   @keyframes floatUp{0%{transform:translateY(0) scale(1);opacity:0}10%{opacity:.25}100%{transform:translateY(-105vh) scale(1.3);opacity:0}}
   @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-  .love .note{margin-top:30px;width:100%;max-width:420px;animation:fadeUp 1.8s ease both;}
+  .love .note{margin-top:24px;width:100%;max-width:420px;animation:fadeUp 1.8s ease both;}
   .noteView{min-height:20px;font-size:14px;line-height:1.55;color:#ffe4e6;opacity:.92;cursor:pointer;}
   .noteView .empty{opacity:.55;font-style:italic;}
   .noteView .stamp{display:block;margin-top:7px;font-size:11px;color:rgba(254,205,211,.6);}
@@ -87,7 +91,7 @@
   .noteBtns button{border:none;border-radius:999px;padding:7px 16px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,.12);color:#ffe4e6;}
   .noteBtns #noteSave{background:#fda4af;color:#4c0519;}
   .seen{font-size:12px;color:rgba(254,205,211,.8);min-width:1px;}
-  .lfoot{position:absolute;bottom:34px;display:flex;align-items:center;gap:14px;}
+  .lfoot{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 24px);display:flex;align-items:center;gap:14px;z-index:4;}
   .ring{position:relative;width:38px;height:38px;}
   .ring .count{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#ffe4e6;}
   .mute{background:rgba(255,255,255,.1);border:none;border-radius:50%;padding:9px;color:#ffe4e6;cursor:pointer;}
@@ -133,6 +137,7 @@
     <button class="close" id="closeLove" aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
+    <div class="loveScroll">
     <div class="kicker" id="kicker"></div>
     <div class="reason" id="reason"></div>
     <div class="sig">
@@ -150,6 +155,7 @@
         </div>
       </div>
     </div>
+    </div><!-- /loveScroll -->
     <div class="lfoot">
       <div class="seen" id="seen"></div>
       <div class="ring">
