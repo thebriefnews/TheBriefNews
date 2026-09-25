@@ -62,40 +62,74 @@
   .key:active{background:#e2e6ee;}
   .key.icon{display:flex;align-items:center;justify-content:center;color:var(--muted);}
   .key.icon svg{width:22px;height:22px;}
-  .shake{animation:shk .45s;}
-  @keyframes shk{10%,90%{transform:translateX(-2px)}20%,80%{transform:translateX(4px)}30%,50%,70%{transform:translateX(-8px)}40%,60%{transform:translateX(8px)}}
 
+  /* ===== hidden page ===== */
   .love{position:fixed;inset:0;z-index:30;overflow:hidden;background:linear-gradient(to bottom,#1e1b4b,#581c87,#881337);}
-  .loveScroll{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;text-align:center;
-    padding:calc(env(safe-area-inset-top,0px) + 58px) 26px calc(env(safe-area-inset-bottom,0px) + 112px);}
-  .loveScroll>:first-child{margin-top:auto;}   /* centres the note when it fits… */
-  .loveScroll>:last-child{margin-bottom:auto;}  /* …and lets it scroll when it doesn't */
-  .close{position:absolute;top:calc(env(safe-area-inset-top,0px) + 16px);right:16px;background:rgba(255,255,255,.12);border:none;color:#ffe4e6;width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:4;}
+  .loveScroll{position:absolute;inset:0;overflow-y:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;
+    padding:calc(env(safe-area-inset-top,0px) + 70px) 24px calc(env(safe-area-inset-bottom,0px) + 132px);}
+  .loveInner{margin:auto 0;width:100%;display:flex;flex-direction:column;align-items:center;text-align:center;}
+
+  /* open-count dots: top-left, one per open today (UK day) */
+  .dots{position:absolute;top:calc(env(safe-area-inset-top,0px) + 20px);left:16px;right:68px;z-index:4;
+    display:flex;flex-wrap:wrap;gap:5px;align-items:center;pointer-events:none;}
+  .dots i{width:7px;height:7px;border-radius:50%;background:#fda4af;opacity:.85;}
+  .dots i.new{animation:dotPop .7s ease both;}
+  .dots span{font-size:10px;color:rgba(254,205,211,.8);margin-left:2px;}
+  @keyframes dotPop{0%{transform:scale(0);opacity:0}60%{transform:scale(1.6);opacity:1}100%{transform:scale(1);opacity:.85}}
+
+  .close{position:absolute;top:calc(env(safe-area-inset-top,0px) + 12px);right:14px;background:rgba(255,255,255,.12);border:none;color:#ffe4e6;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:5;}
   .close svg{width:18px;height:18px;}
+
+  .dayTag{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#4c0519;background:#fda4af;border-radius:999px;padding:4px 11px;margin-bottom:14px;}
   .love .kicker{font-size:12px;font-weight:300;letter-spacing:0.2em;text-transform:uppercase;color:rgba(254,205,211,.85);margin-bottom:20px;}
-  .love .reason{font-family:Georgia,"Times New Roman",serif;font-size:clamp(20px,5.7vw,31px);line-height:1.5;color:#fff5f7;max-width:470px;overflow-wrap:break-word;animation:fadeUp 1.4s ease both;}
+  .love .reason{font-family:Georgia,"Times New Roman",serif;font-size:clamp(20px,5.7vw,31px);line-height:1.5;color:#fff5f7;max-width:470px;overflow-wrap:break-word;}
+  .love .reason.anim{animation:fadeUp 1.1s ease both;}
   @media(min-width:640px){.love .reason{font-size:33px;}}
-  .love .sig{margin-top:30px;display:flex;align-items:center;gap:12px;color:rgba(254,205,211,.75);font-size:12px;letter-spacing:.05em;}
+
+  /* small like hearts (tap area 40px, icon 17px) */
+  .likeBtn{background:none;border:none;width:40px;height:40px;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;color:rgba(255,228,230,.6);margin-top:6px;}
+  .likeBtn svg{width:17px;height:17px;display:block;transition:transform .15s;}
+  .likeBtn.on{color:#ef4444;}
+  .likeBtn.on svg{filter:drop-shadow(0 0 6px rgba(239,68,68,.55));}
+  .likeBtn.pop svg{animation:likePop .35s ease;}
+  .likeBtn:disabled{opacity:.35;}
+  @keyframes likePop{50%{transform:scale(1.45)}}
+
+  .love .sig{margin-top:14px;display:flex;align-items:center;gap:12px;color:rgba(254,205,211,.75);font-size:12px;letter-spacing:.05em;}
   .love .sig svg{width:15px;height:15px;}
-  .heart{position:absolute;bottom:-40px;color:#fda4af;opacity:.2;}
+  .heart{position:absolute;bottom:-40px;color:#fda4af;opacity:.2;pointer-events:none;}
   @keyframes floatUp{0%{transform:translateY(0) scale(1);opacity:0}10%{opacity:.25}100%{transform:translateY(-105vh) scale(1.3);opacity:0}}
   @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-  .love .note{margin-top:24px;width:100%;max-width:420px;animation:fadeUp 1.8s ease both;}
-  .noteView{min-height:20px;font-size:14px;line-height:1.55;color:#ffe4e6;opacity:.92;cursor:pointer;}
+
+  .love .note{margin-top:24px;width:100%;max-width:420px;display:flex;flex-direction:column;align-items:center;}
+  .noteView{width:100%;min-height:20px;font-size:14px;line-height:1.55;color:#ffe4e6;opacity:.92;cursor:pointer;overflow-wrap:break-word;}
   .noteView .empty{opacity:.55;font-style:italic;}
   .noteView .stamp{display:block;margin-top:7px;font-size:11px;color:rgba(254,205,211,.6);}
-  .noteEdit textarea{width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:12px;color:#fff5f7;font-family:inherit;font-size:15px;line-height:1.5;padding:11px 13px;resize:none;outline:none;}
+  .noteEdit{width:100%;}
+  .noteEdit textarea{width:100%;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:12px;color:#fff5f7;font-family:inherit;font-size:16px;line-height:1.5;padding:11px 13px;resize:none;outline:none;}
   .noteEdit textarea:focus{border-color:rgba(253,164,175,.7);}
   .noteEdit textarea::placeholder{color:rgba(255,228,230,.5);}
   .noteBtns{display:flex;justify-content:flex-end;gap:10px;margin-top:9px;}
-  .noteBtns button{border:none;border-radius:999px;padding:7px 16px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,.12);color:#ffe4e6;}
+  .noteBtns button{border:none;border-radius:999px;padding:8px 16px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;background:rgba(255,255,255,.12);color:#ffe4e6;}
   .noteBtns #noteSave{background:#fda4af;color:#4c0519;}
-  .seen{font-size:12px;color:rgba(254,205,211,.8);min-width:1px;}
-  .lfoot{position:absolute;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom,0px) + 24px);display:flex;align-items:center;gap:14px;z-index:4;}
+
+  /* bottom bar: « last | ring · stop · mute | next » */
+  .lfoot{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom,0px) + 16px);z-index:4;
+    display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 12px;}
+  .seen{font-size:12px;color:rgba(254,205,211,.8);min-height:15px;}
+  .lrow{width:100%;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;}
+  .ctrls{display:flex;align-items:center;gap:12px;}
+  .navBtn{border:none;background:rgba(255,255,255,.14);color:#ffe4e6;border-radius:999px;padding:0 14px;height:40px;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;}
+  .navBtn:active{background:rgba(255,255,255,.24);}
+  .navBtn:disabled{opacity:.3;cursor:default;}
+  #lastBtn{justify-self:start;}
+  #nextBtn{justify-self:end;}
+  .invisible{visibility:hidden;}
   .ring{position:relative;width:38px;height:38px;}
   .ring .count{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;color:#ffe4e6;}
-  .mute{background:rgba(255,255,255,.1);border:none;border-radius:50%;padding:9px;color:#ffe4e6;cursor:pointer;}
+  .mute{background:rgba(255,255,255,.1);border:none;border-radius:50%;width:38px;height:38px;display:flex;align-items:center;justify-content:center;color:#ffe4e6;cursor:pointer;}
   .mute svg{width:16px;height:16px;display:block;}
+  @media(max-width:350px){ .ctrls{gap:8px;} .navBtn{padding:0 11px;font-size:12px;} }
   .hidden{display:none !important;}
 </style>
 </head>
@@ -134,39 +168,51 @@
 
   <!-- ===== LOVE ===== -->
   <div class="love hidden" id="loveScreen">
+    <div class="dots" id="dots"></div>
     <button class="close" id="closeLove" aria-label="Close">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
     </button>
     <div class="loveScroll">
-    <div class="kicker" id="kicker"></div>
-    <div class="reason" id="reason"></div>
-    <div class="sig">
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
-      <span>forever &amp; then some</span>
-      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
-    </div>
-    <div class="note" id="noteBlock">
-      <div class="noteView" id="noteView"></div>
-      <div class="noteEdit hidden" id="noteEdit">
-        <textarea id="noteInput" maxlength="240" rows="2" placeholder="leave a little note…"></textarea>
-        <div class="noteBtns">
-          <button id="noteCancel" type="button">cancel</button>
-          <button id="noteSave" type="button">save</button>
+      <div class="loveInner">
+        <div class="dayTag hidden" id="dayTag"></div>
+        <div class="kicker" id="kicker"></div>
+        <div class="reason" id="reason"></div>
+        <button class="likeBtn" id="likeMsg" aria-label="Like this message" aria-pressed="false"></button>
+        <div class="sig">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+          <span>forever &amp; then some</span>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z"/></svg>
+        </div>
+        <div class="note" id="noteBlock">
+          <div class="noteView" id="noteView"></div>
+          <div class="noteEdit hidden" id="noteEdit">
+            <textarea id="noteInput" maxlength="240" rows="2" placeholder="leave a little note…"></textarea>
+            <div class="noteBtns">
+              <button id="noteCancel" type="button">cancel</button>
+              <button id="noteSave" type="button">save</button>
+            </div>
+          </div>
+          <button class="likeBtn hidden" id="likeNote" aria-label="Like this note" aria-pressed="false"></button>
         </div>
       </div>
     </div>
-    </div><!-- /loveScroll -->
     <div class="lfoot">
       <div class="seen" id="seen"></div>
-      <div class="ring">
-        <svg viewBox="0 0 36 36" style="transform:rotate(-90deg)">
-          <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="3"/>
-          <circle id="ringFg" cx="18" cy="18" r="15" fill="none" stroke="#fda4af" stroke-width="3" stroke-linecap="round"/>
-        </svg>
-        <div class="count" id="count"></div>
+      <div class="lrow">
+        <button class="navBtn" id="lastBtn" aria-label="Previous day">« last</button>
+        <div class="ctrls">
+          <div class="ring">
+            <svg viewBox="0 0 36 36" style="transform:rotate(-90deg)">
+              <circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="3"/>
+              <circle id="ringFg" cx="18" cy="18" r="15" fill="none" stroke="#fda4af" stroke-width="3" stroke-linecap="round"/>
+            </svg>
+            <div class="count" id="count"></div>
+          </div>
+          <button class="mute" id="stopBtn" aria-label="Stop music"></button>
+          <button class="mute" id="muteBtn" aria-label="Mute"></button>
+        </div>
+        <button class="navBtn invisible" id="nextBtn" aria-label="Next day">next »</button>
       </div>
-      <button class="mute" id="stopBtn" aria-label="Stop music"></button>
-      <button class="mute" id="muteBtn" aria-label="Mute"></button>
     </div>
   </div>
 
@@ -179,42 +225,30 @@
 const REVEAL_SECONDS = 20;        // fallback reveal length (config overrides)
 
 /* ---- LOCKED MESSAGES (encrypted) ------------------------------------------
-   Your messages are encrypted with your secret TIME as the key. This page only
-   ever holds the encrypted blob — the time itself is NEVER written here, so it
-   can't be found by inspecting or "view source". Correct time decrypts and
-   shows the note; any other time just fails and filters the news.
-   Make your own blob with the included encrypt.html, then paste it below.     */
+   Encrypted with your secret TIME as the key. The time itself is NEVER written
+   here. Make your blob with encrypt.html.                                     */
 const ENCRYPTED_CONFIG = null;
-
-/* ...or host the encrypted blob as a file and put its RAW url here instead: */
 const CONFIG_URL = "reasons.enc.json";
 
-/* Reliable local news. Get a FREE key at https://gnews.io/ (2 min, 100/day)
-   and paste it below. With a key the news loads fast and dependably.
-   Leave it "" and the app falls back to free public relays, which work but
-   can be slow or occasionally fail. */
+/* ---- SHARED DATA (note, hearts, open-dots, seen-by, reliable news) ---------
+   Your site stays on GitHub Pages. Paste the link of your free Cloudflare
+   Worker here (setup in the README), e.g.
+     const API_BASE = "https://briefing-api.yourname.workers.dev";
+   Leave it "" and everything still works, but only on this one phone.        */
+const API_BASE = "https://briefing-api.parathaidli2.workers.dev";
+
+/* Which clock decides when a new day starts (message changes, dots and hearts
+   reset). Everyone sees the same day, wherever they are. */
+const DAY_TZ = "Europe/London";
+
+/* Optional free GNews key (only needed if API_BASE is empty). */
 const NEWS_API_KEY = "";
 
-/* Background song. This is set to play a file named song.mp3 that sits next to
-   index.html — just add your song.mp3 to the repo and it becomes the background
-   sound the moment the hidden page opens.
-   • To use a different filename, change "song.mp3" below.
-   • To use a link instead, paste a direct https mp3 url (e.g. a GitHub raw url).
-   • Set it back to "" to use the soft built-in melody.
-   If the file is missing or can't play, it quietly falls back to the built-in melody. */
+/* Background song next to index.html, or a direct https mp3 link, or "" for
+   the built-in melody. Falls back to the melody if it can't play. */
 const MUSIC_URL = "song.mp3";
 
-/* Shared note + "seen by" counter.
-   These use the app's OWN backend (the /api functions included in this project),
-   so there's no separate service to sign up for. On Cloudflare Pages, add a free
-   KV store once (steps in the README) and both light up: the note syncs between
-   phones and the counter shows how many different people have opened the page.
-   Where no backend is available (e.g. plain GitHub Pages), the note quietly
-   falls back to this-device-only and the counter stays hidden. The note is
-   encrypted with your secret time before it leaves the phone, so the server only
-   ever stores unreadable text. */
-
-/* Built-in fallback used only until/if the GitHub config loads. */
+/* Built-in fallback used only until/if the encrypted config loads. */
 const FALLBACK_REASONS = [
   "Because the day feels lighter the moment I remember you exist.",
   "Because you turn the most ordinary Tuesday into somewhere I want to be.",
@@ -243,9 +277,12 @@ let unlockTime=null, currentNote=null, currentNoteText="";
 
 let reasons = FALLBACK_REASONS.slice();
 let revealSeconds = REVEAL_SECONDS;
-let startDate = new Date(2025,0,1);   // day the sequence begins (from encrypted config)
+let startStr = "2025-01-01";          // day message #1 is shown (UK date)
 let musicUrl = MUSIC_URL;
-let encPayload = ENCRYPTED_CONFIG;    // {salt,iv,ct} — encrypted, never the time
+let encPayload = ENCRYPTED_CONFIG;
+
+/* which day the hidden page is showing */
+let viewOffset=0, viewDate=null, dayState=null, dayReq=0;
 
 const AV_COLORS=["#b91c1c","#0369a1","#047857","#7c3aed","#c2410c","#0f766e","#9333ea","#be123c"];
 const DEL="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M21 5H8l-7 7 7 7h13a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2Z'/><line x1='18' y1='9' x2='12' y2='15'/><line x1='12' y1='9' x2='18' y2='15'/></svg>";
@@ -253,97 +290,105 @@ const VOL_ON="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-
 const VOL_OFF="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><polygon points='11 5 6 9 2 9 2 15 6 15 11 19 11 5'/><line x1='22' y1='9' x2='16' y2='15'/><line x1='16' y1='9' x2='22' y2='15'/></svg>";
 const STOP_ICON="<svg viewBox='0 0 24 24' fill='currentColor'><rect x='6' y='6' width='12' height='12' rx='2'/></svg>";
 const PLAY_ICON="<svg viewBox='0 0 24 24' fill='currentColor'><path d='M8 5v14l11-7z'/></svg>";
+const LIKE_OFF="<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linejoin='round'><path d='M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z'/></svg>";
+const LIKE_ON ="<svg viewBox='0 0 24 24' fill='currentColor' stroke='currentColor' stroke-width='2' stroke-linejoin='round'><path d='M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.6l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8Z'/></svg>";
 
 $("dateBox").innerHTML = new Date().toLocaleDateString(undefined,{weekday:"long"}) + "<br>" +
   new Date().toLocaleDateString(undefined,{day:"numeric",month:"long"});
 
 /* ---- encrypted config (the entered TIME is the decryption key) ---- */
 async function loadEnc(){
-  if(encPayload) return;                       // embedded blob present
+  if(encPayload) return;
   if(!CONFIG_URL) return;
   try{ const r=await fetch(CONFIG_URL,{cache:"no-store"}); if(r.ok){ let s=(await r.text()).trim(); const i=s.indexOf("{"), j=s.lastIndexOf("}"); if(i>-1&&j>i) s=s.slice(i,j+1); encPayload=JSON.parse(s); } }catch(e){}
 }
 function b64d(s){ const b=atob(s); const u=new Uint8Array(b.length); for(let i=0;i<b.length;i++)u[i]=b.charCodeAt(i); return u; }
-async function deriveKey(pw,salt){
+function b64e(buf){ const a=new Uint8Array(buf); let s=""; for(let i=0;i<a.length;i++) s+=String.fromCharCode(a[i]); return btoa(s); }
+async function deriveKey(pw,salt,usages){
   const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(pw),"PBKDF2",false,["deriveKey"]);
-  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:250000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["decrypt"]);
+  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:250000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,usages);
 }
-async function unlockWith(t){                   // returns the config, or null if wrong
+async function unlockWith(t){
   if(!encPayload) return null;
   try{
-    const key=await deriveKey(t,b64d(encPayload.salt));
+    const key=await deriveKey(t,b64d(encPayload.salt),["decrypt"]);
     const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:b64d(encPayload.iv)},key,b64d(encPayload.ct));
     return JSON.parse(new TextDecoder().decode(pt));
-  }catch(e){ return null; }                     // wrong key => auth fails => null
+  }catch(e){ return null; }
 }
-/* ---- shared note (encrypted with the secret time) + unique "seen by" count ----
-   Talks to this site's own /api endpoints (Cloudflare Pages functions + KV).
-   • /api/seen : records this visitor by IP (hashed server-side) and returns the
-                 number of DISTINCT people — the same person doesn't add up.
-   • /api/note : stores/returns ONE shared note. It's encrypted here first, so the
-                 server only ever holds unreadable text.
-   If the endpoints aren't there, the note falls back to this device and the
-   counter is hidden. */
-let noteBackend="local";   // "api" once the backend answers
-function b64e(buf){ const a=new Uint8Array(buf); let s=""; for(let i=0;i<a.length;i++) s+=String.fromCharCode(a[i]); return btoa(s); }
-async function noteKey(salt){
-  const base=await crypto.subtle.importKey("raw",new TextEncoder().encode(unlockTime||""),"PBKDF2",false,["deriveKey"]);
-  return crypto.subtle.deriveKey({name:"PBKDF2",salt,iterations:250000,hash:"SHA-256"},base,{name:"AES-GCM",length:256},false,["encrypt","decrypt"]);
-}
+
+/* ---- note encryption (secret time is the key; server only sees gibberish) ---- */
 async function encNote(text){
   const salt=crypto.getRandomValues(new Uint8Array(16)), iv=crypto.getRandomValues(new Uint8Array(12));
-  const key=await noteKey(salt);
+  const key=await deriveKey(unlockTime||"",salt,["encrypt"]);
   const ct=await crypto.subtle.encrypt({name:"AES-GCM",iv},key,new TextEncoder().encode(text));
   return {salt:b64e(salt), iv:b64e(iv), ct:b64e(ct), updatedAt:Date.now()};
 }
 async function decNote(o){
   try{
-    const key=await noteKey(b64d(o.salt));
+    const key=await deriveKey(unlockTime||"",b64d(o.salt),["decrypt"]);
     const pt=await crypto.subtle.decrypt({name:"AES-GCM",iv:b64d(o.iv)},key,b64d(o.ct));
     return new TextDecoder().decode(pt);
   }catch(e){ return null; }
 }
-async function apiSeen(){
-  try{
-    const r=await fetchTimeout("/api/seen",7000,{method:"POST"});
-    if(!r.ok) return null;
-    const d=await r.json();
-    return (typeof d.count==="number") ? d.count : null;
-  }catch(e){ return null; }
-}
-async function apiGetNote(){
-  try{
-    const r=await fetchTimeout("/api/note",7000);
-    if(!r.ok) return {ok:false};
-    return {ok:true, note:await r.json()};
-  }catch(e){ return {ok:false}; }
-}
-async function apiPutNote(o){
-  try{ const r=await fetchTimeout("/api/note",7000,{method:"PUT",body:JSON.stringify(o)}); return r.ok; }
-  catch(e){ return false; }
-}
-async function saveNote(o){
-  if(noteBackend==="api" && await apiPutNote(o)) return;
-  localStorage.setItem("tb_note",JSON.stringify(o));   // fallback: this device only
-}
-function escapeHtml(s){ return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
-/* A serial number the list-maker added for reference (e.g. "34. " or "34) ")
-   is never part of the message itself — strip it before anything is shown. */
+/* ---- days (UK clock) ---- */
+function todayStr(){
+  const p=new Intl.DateTimeFormat("en-GB",{timeZone:DAY_TZ,year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(new Date());
+  const g=(t)=>p.find(x=>x.type===t).value;
+  return g("year")+"-"+g("month")+"-"+g("day");
+}
+function shiftDate(s,k){ const d=new Date(s+"T00:00:00Z"); d.setUTCDate(d.getUTCDate()+k); return d.toISOString().slice(0,10); }
+function dateFor(offset){ return shiftDate(todayStr(),-offset); }
+function dayNum(s){ return Math.round((Date.parse(s+"T00:00:00Z")-Date.parse(startStr+"T00:00:00Z"))/86400000); }
+function prettyDate(s){ return new Date(s+"T12:00:00Z").toLocaleDateString(undefined,{weekday:"short",day:"numeric",month:"short",timeZone:"UTC"}); }
+
+/* ---- shared data: Worker if API_BASE is set, else this phone only ---- */
+async function fetchTimeout(u,ms,opts){
+  const c=new AbortController(); const id=setTimeout(()=>c.abort(),ms||7000);
+  try{ return await fetch(u,Object.assign({cache:"no-store",signal:c.signal},opts||{})); }
+  finally{ clearTimeout(id); }
+}
+function api(p){ return API_BASE.replace(/\/+$/,"")+p; }
+async function apiCall(p,opts){
+  try{ const r=await fetchTimeout(api(p),8000,opts); if(!r.ok) return null; return await r.json(); }
+  catch(e){ return null; }
+}
+const EMPTY_DAY=()=>({opens:0,likeMsg:false,likeNote:false,note:null});
+function localDay(d){ try{ return Object.assign(EMPTY_DAY(),JSON.parse(localStorage.getItem("tb_day:"+d)||"{}")); }catch(e){ return EMPTY_DAY(); } }
+function saveLocalDay(d,s){ try{ localStorage.setItem("tb_day:"+d,JSON.stringify(s)); }catch(e){} }
+
+async function getDay(d,registerOpen){
+  if(API_BASE){
+    const s=await apiCall((registerOpen?"/open":"/day")+"?d="+d, registerOpen?{method:"POST"}:undefined);
+    if(s) return s;
+  }
+  const s=localDay(d);
+  if(registerOpen){ s.opens=(s.opens||0)+1; saveLocalDay(d,s); }
+  return s;
+}
+async function setLike(d,which,on){               // returns new state, or null on failure
+  if(API_BASE) return await apiCall("/like?d="+d+"&which="+which+"&on="+(on?1:0),{method:"POST"});
+  const s=localDay(d); s[which==="msg"?"likeMsg":"likeNote"]=on; saveLocalDay(d,s); return s;
+}
+async function putNote(d,o){                       // true if saved
+  if(API_BASE){ const r=await apiCall("/note?d="+d,{method:"PUT",headers:{"content-type":"text/plain"},body:JSON.stringify(o)}); return !!(r&&r.ok); }
+  const s=localDay(d); s.note=o; saveLocalDay(d,s); return true;
+}
+async function apiSeen(){
+  if(!API_BASE) return null;
+  const d=await apiCall("/seen",{method:"POST"});
+  return (d && typeof d.count==="number") ? d.count : null;
+}
+
+function escapeHtml(s){ return s.replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 function stripSerial(s){ return String(s).replace(/^\s*\d+\s*[.)\-:]\s+/,"").trim(); }
 
 function applyCfg(c){
   if(Array.isArray(c.reasons)&&c.reasons.length) reasons=c.reasons.map(stripSerial).filter(Boolean);
   if(c.revealSeconds) revealSeconds=+c.revealSeconds||revealSeconds;
-  if(c.startDate){ const d=new Date(c.startDate+"T00:00:00"); if(!isNaN(d)) startDate=d; }
+  if(c.startDate && /^\d{4}-\d{2}-\d{2}$/.test(c.startDate)) startStr=c.startDate;
   if(c.musicUrl) musicUrl=c.musicUrl;
-}
-
-function today(){
-  let n=Math.floor((Date.now()-startDate)/86400000);
-  if(n<0) n=0;                       // before the start date, show #1
-  const i=n%reasons.length;          // walk the list in order, then loop
-  return {text:reasons[i], seq:n+1};
 }
 
 /* ---- relative time ---- */
@@ -355,22 +400,17 @@ function ago(d){
   return Math.floor(s/86400)+"d ago";
 }
 
-/* ---- real local news via Google News RSS (keyless) ---- */
+/* ---- local news ---- */
 function rssGeo(){    const a=AREAS[country]; return "https://news.google.com/rss/headlines/section/geo/"+encodeURIComponent(city)+"?hl="+a.hl+"&gl="+a.gl+"&ceid="+encodeURIComponent(a.ceid); }
 function rssSearch(){ const a=AREAS[country]; return "https://news.google.com/rss/search?q="+encodeURIComponent(city+" news")+"&hl="+a.hl+"&gl="+a.gl+"&ceid="+encodeURIComponent(a.ceid); }
 function rssTop(){    const a=AREAS[country]; return "https://news.google.com/rss?hl="+a.hl+"&gl="+a.gl+"&ceid="+encodeURIComponent(a.ceid); }
 
-async function fetchTimeout(u,ms,opts){
-  const c=new AbortController(); const id=setTimeout(()=>c.abort(),ms||7000);
-  try{ return await fetch(u,Object.assign({cache:"no-store",signal:c.signal},opts||{})); }
-  finally{ clearTimeout(id); }
-}
 async function tryProxy(url){
   const proxies=[
     u=>"https://api.allorigins.win/raw?url="+encodeURIComponent(u),
     u=>"https://api.codetabs.com/v1/proxy/?quest="+encodeURIComponent(u),
     u=>"https://corsproxy.io/?url="+encodeURIComponent(u),
-    u=>"https://api.allorigins.win/get?url="+encodeURIComponent(u),   // JSON-wrapped
+    u=>"https://api.allorigins.win/get?url="+encodeURIComponent(u),
     u=>"https://thingproxy.freeboard.io/fetch/"+u,
   ];
   for(const mk of proxies){
@@ -378,9 +418,7 @@ async function tryProxy(url){
       const r=await fetchTimeout(mk(url),7000);
       if(!r.ok) continue;
       let txt=await r.text();
-      if(txt && txt[0]==="{" && txt.indexOf('"contents"')>-1){      // unwrap allorigins /get
-        try{ txt=(JSON.parse(txt).contents)||""; }catch(e){}
-      }
+      if(txt && txt[0]==="{" && txt.indexOf('"contents"')>-1){ try{ txt=(JSON.parse(txt).contents)||""; }catch(e){} }
       if(txt && txt.indexOf("<item")>-1) return txt;
     }catch(e){}
   }
@@ -401,28 +439,23 @@ async function fetchGNews(){
   if(!NEWS_API_KEY) return null;
   try{
     const a=AREAS[country];
-    const u="https://gnews.io/api/v4/search?q="+encodeURIComponent(city)+
-      "&country="+a.gl.toLowerCase()+"&lang=en&max=14&apikey="+NEWS_API_KEY;
+    const u="https://gnews.io/api/v4/search?q="+encodeURIComponent(city)+"&country="+a.gl.toLowerCase()+"&lang=en&max=14&apikey="+NEWS_API_KEY;
     const r=await fetch(u,{cache:"no-store"});
     if(!r.ok) return null;
     const d=await r.json();
     if(!d.articles||!d.articles.length) return null;
-    return d.articles.map(x=>({title:x.title, link:x.url,
-      date:x.publishedAt?new Date(x.publishedAt):new Date(),
-      source:(x.source&&x.source.name)||"News"}));
+    return d.articles.map(x=>({title:x.title, link:x.url, date:x.publishedAt?new Date(x.publishedAt):new Date(), source:(x.source&&x.source.name)||"News"}));
   }catch(e){ return null; }
 }
 async function fetchViaSelfApi(){
-  // Served by the included serverless function on Cloudflare Pages / Netlify / Vercel.
-  // Same-origin, no CORS, no third-party proxy — the reliable keyless path.
+  // Your Worker (API_BASE) if set; otherwise a same-site /api/news if the host has one.
   try{
-    const r=await fetchTimeout("/api/news?city="+encodeURIComponent(city),8000);
+    const u=(API_BASE? api("/news") : "/api/news")+"?city="+encodeURIComponent(city);
+    const r=await fetchTimeout(u,8000);
     if(!r.ok) return null;
     const d=await r.json();
     if(!d || !d.items || !d.items.length) return null;
-    return d.items.map(x=>({title:x.title, link:x.link||"#",
-      date:x.pubDate?new Date(String(x.pubDate).replace(" ","T")):new Date(),
-      source:x.source||"News"})).filter(a=>a.title);
+    return d.items.map(x=>({title:x.title, link:x.link||"#", date:x.pubDate?new Date(String(x.pubDate).replace(" ","T")):new Date(), source:x.source||"News"})).filter(a=>a.title);
   }catch(e){ return null; }
 }
 async function fetchViaRss2Json(){
@@ -446,10 +479,10 @@ async function fetchViaRss2Json(){
 }
 async function loadNews(){
   feedState("loading");
-  let list=await fetchViaSelfApi();            // reliable, no key (Cloudflare/Netlify/Vercel)
-  if(!list) list=await fetchGNews();           // reliable, needs a free key (works on any host)
-  if(!list) list=await fetchViaRss2Json();     // keyless public relay (best-effort)
-  if(!list){                                   // last resort: generic relays, several endpoints
+  let list=await fetchViaSelfApi();
+  if(!list) list=await fetchGNews();
+  if(!list) list=await fetchViaRss2Json();
+  if(!list){
     for(const build of [rssGeo, rssSearch, rssTop]){
       const xml=await tryProxy(build());
       if(xml){ const parsed=parseRSS(xml); if(parsed.length){ list=parsed; break; } }
@@ -459,10 +492,9 @@ async function loadNews(){
   articles=list.slice(0,14);
   render();
 }
-
 function feedState(kind){
   if(kind==="loading") $("feed").innerHTML='<div class="state"><div class="spin"></div>Loading '+city+' stories…</div>';
-  if(kind==="error")   $("feed").innerHTML='<div class="state">Couldn\u2019t reach the news service.<br><span style="font-size:12px;color:var(--faint)">The free relays can be flaky. Make sure the page is opened from its hosted <b>https</b> link (not the file itself); a free GNews key makes it reliable.</span><br><button onclick="loadNews()">Try again</button></div>';
+  if(kind==="error")   $("feed").innerHTML='<div class="state">Couldn\u2019t reach the news service.<br><span style="font-size:12px;color:var(--faint)">Please try again in a moment.</span><br><button onclick="loadNews()">Try again</button></div>';
 }
 function render(){
   let list=articles;
@@ -486,7 +518,6 @@ function render(){
 }
 function clearSince(){ sinceStamp=null; sinceLabel=""; render(); }
 
-/* ---- area (UK cities) ---- */
 function fillCities(){
   $("citySel").innerHTML=AREAS[country].cities.map(c=>'<option '+(c===city?"selected":"")+'>'+c+'</option>').join("");
 }
@@ -517,15 +548,12 @@ function press(k){
   if(pos===1 && entry[0]==="2" && +k>3) return;
   if(pos===2 && +k>5) return;
   entry+=k; renderClock();
-  if(entry.length===4){
-    const t=entry.slice(0,2)+":"+entry.slice(2);
-    handleTime(t);
-  }
+  if(entry.length===4) handleTime(entry.slice(0,2)+":"+entry.slice(2));
 }
 async function handleTime(t){
-  const cfg=await unlockWith(t);          // correct time decrypts; wrong => null
+  const cfg=await unlockWith(t);
   if(cfg){ unlockTime=t; applyCfg(cfg); setTimeout(showLove,180); return; }
-  const dv=$("dateSel").value;            // yyyy-mm-dd (news only)
+  const dv=$("dateSel").value;
   const [h,m]=t.split(":").map(Number);
   const base=dv?new Date(dv+"T00:00:00"):new Date();
   base.setHours(h,m,0,0);
@@ -536,7 +564,7 @@ async function handleTime(t){
 
 /* ---- music ---- */
 async function startMusic(){
-  if(musicUrl){                          // your own song, if provided
+  if(musicUrl){
     try{
       if(!audioEl){ audioEl=new Audio(); audioEl.loop=true; }
       if(audioEl.getAttribute("src")!==musicUrl){ audioEl.src=musicUrl; }
@@ -544,9 +572,9 @@ async function startMusic(){
       audioEl.currentTime=0;
       await audioEl.play();
       return;
-    }catch(e){ /* if it can't play, fall back to the built-in melody */ }
+    }catch(e){}
   }
-  try{                                   // soft built-in generative melody
+  try{
     await Tone.start();
     const reverb=new Tone.Reverb({decay:8,wet:.6}).toDestination();
     synth=new Tone.PolySynth(Tone.Synth,{oscillator:{type:"sine"},envelope:{attack:1.2,decay:.4,sustain:.7,release:4},volume:-14}).connect(reverb);
@@ -561,66 +589,158 @@ function stopMusic(){
   try{loop&&loop.stop();loop&&loop.dispose();synth&&synth.dispose();Tone.Transport.stop();}catch(e){}loop=null;synth=null;
 }
 
-/* ---- love reveal (no history, no trace) ---- */
+/* ============================================================================
+   HIDDEN PAGE
+   ========================================================================== */
 const RC=2*Math.PI*15; $("ringFg").style.strokeDasharray=RC;
 function updateRing(){ $("count").textContent=remaining; $("ringFg").style.strokeDashoffset=RC*(1-remaining/revealSeconds); }
+
 function showLove(){
-  const t=today();
-  $("kicker").textContent="reason no. "+t.seq+" that i love you";
-  $("reason").textContent=t.text;
   closePad(); $("loveScreen").classList.remove("hidden");
-  remaining=revealSeconds; updateRing();
+  viewOffset=0;
   musicStopped=false; $("stopBtn").innerHTML=STOP_ICON;
   if(!muted) startMusic();
   startCountdown();
-  loadSeen(); loadNote();
+  loadSeen();
+  renderDay(true);                      // true = count this as an open
 }
 function startCountdown(){ clearInterval(timer); remaining=revealSeconds; updateRing(); timer=setInterval(()=>{remaining--;updateRing();if(remaining<=0)endLove();},1000); }
 function pauseCountdown(){ clearInterval(timer); timer=null; }
-function endLove(){ clearInterval(timer); timer=null; stopMusic(); $("loveScreen").classList.add("hidden"); entry=""; $("noteEdit").classList.add("hidden"); $("noteView").classList.remove("hidden"); }
+function endLove(){
+  clearInterval(timer); timer=null; stopMusic();
+  $("loveScreen").classList.add("hidden"); entry="";
+  $("noteEdit").classList.add("hidden"); $("noteView").classList.remove("hidden");
+  viewOffset=0; dayReq++;
+}
 
-/* seen-by count: record this person (by IP, server-side) then show the number */
+/* draw the message for the day being viewed, then load its shared data */
+async function renderDay(registerOpen){
+  const d=dateFor(viewOffset); viewDate=d;
+  const n=Math.max(0,dayNum(d));
+  $("kicker").textContent="reason no. "+(n+1)+" that i love you";
+  const r=$("reason"); r.textContent=reasons[n%reasons.length];
+  r.classList.remove("anim"); void r.offsetWidth; r.classList.add("anim");
+
+  const tag=$("dayTag");
+  if(viewOffset===0) tag.classList.add("hidden");
+  else{ tag.textContent=(viewOffset===1?"yesterday · ":"")+prettyDate(d); tag.classList.remove("hidden"); }
+
+  $("lastBtn").disabled = dayNum(d)<=0;              // nothing before message #1
+  $("nextBtn").classList.toggle("invisible", viewOffset===0);
+
+  // clear while loading
+  dayState=null; renderDots(null); currentNote=null; currentNoteText="";
+  $("noteEdit").classList.add("hidden");
+  $("noteView").classList.remove("hidden");
+  $("noteView").innerHTML='<span class="empty">…</span>';
+  $("likeNote").classList.add("hidden");
+  renderLikes();
+
+  const my=++dayReq;
+  const s=await getDay(d,registerOpen);
+  if(my!==dayReq) return;                            // user moved on
+  dayState=s;
+  renderDots(s.opens, registerOpen);
+  currentNote=s.note||null;
+  currentNoteText=currentNote ? (await decNote(currentNote))||"" : "";
+  if(my!==dayReq) return;
+  renderNote();
+}
+
+/* top-left dots: one per open of the day being viewed */
+function renderDots(n,popLast){
+  const box=$("dots");
+  if(n==null){ box.innerHTML=""; return; }
+  const MAX=60, c=Math.min(n,MAX);
+  let h="";
+  for(let k=0;k<c;k++) h+='<i'+(popLast&&k===c-1&&n<=MAX?' class="new"':'')+'></i>';
+  if(n>MAX) h+='<span>+'+(n-MAX)+'</span>';
+  box.innerHTML=h;
+  box.setAttribute("aria-label","opened "+n+" time"+(n===1?"":"s")+" this day");
+}
+
+/* hearts */
+function paintLike(id,on){
+  const b=$(id);
+  b.innerHTML=on?LIKE_ON:LIKE_OFF;
+  b.classList.toggle("on",!!on);
+  b.setAttribute("aria-pressed",on?"true":"false");
+  b.disabled=!dayState;
+}
+function renderLikes(){
+  paintLike("likeMsg", dayState&&dayState.likeMsg);
+  paintLike("likeNote", dayState&&dayState.likeNote);
+}
+async function toggleLike(which){
+  if(!dayState) return;
+  const k=which==="msg"?"likeMsg":"likeNote", d=viewDate, before=dayState[k], on=!before;
+  dayState[k]=on; renderLikes();
+  const b=$(which==="msg"?"likeMsg":"likeNote");
+  b.classList.remove("pop"); void b.offsetWidth; b.classList.add("pop");
+  const s=await setLike(d,which,on);
+  if(d!==viewDate||!dayState) return;
+  if(s){ dayState.likeMsg=!!s.likeMsg; dayState.likeNote=!!s.likeNote; }
+  else dayState[k]=before;                           // didn't save: put it back
+  renderLikes();
+}
+$("likeMsg").onclick=()=>toggleLike("msg");
+$("likeNote").onclick=()=>toggleLike("note");
+
+/* shared note for the day being viewed */
+function renderNote(){
+  const v=$("noteView");
+  const has=!!(currentNoteText && currentNoteText.trim());
+  if(has){
+    v.innerHTML=escapeHtml(currentNoteText)+'<span class="stamp">tap to edit · updated '+ago(currentNote.updatedAt)+'</span>';
+  }else{
+    v.innerHTML='<span class="empty">'+(viewOffset===0?"tap to leave a little note…":"no note this day · tap to add one")+'</span>';
+  }
+  $("noteEdit").classList.add("hidden");
+  v.classList.remove("hidden");
+  $("likeNote").classList.toggle("hidden",!has);
+  renderLikes();
+}
+$("noteView").onclick=()=>{
+  if(!dayState) return;
+  pauseCountdown();
+  $("noteInput").value=currentNoteText;
+  $("noteView").classList.add("hidden");
+  $("likeNote").classList.add("hidden");
+  $("noteEdit").classList.remove("hidden");
+  $("noteInput").focus();
+};
+$("noteCancel").onclick=()=>{ $("noteSave").textContent="save"; renderNote(); startCountdown(); };
+$("noteSave").onclick=async ()=>{
+  const d=viewDate, text=$("noteInput").value.trim(), changed=text!==currentNoteText;
+  const btn=$("noteSave"); btn.textContent="saving…"; btn.disabled=true;
+  const o=await encNote(text);
+  const ok=await putNote(d,o);
+  btn.disabled=false;
+  if(!ok){ btn.textContent="not saved · retry"; return; }
+  btn.textContent="save";
+  if(d!==viewDate) return;
+  currentNote=o; currentNoteText=text;
+  if(changed && dayState && dayState.likeNote){       // a new note starts un-liked
+    dayState.likeNote=false; setLike(d,"note",false);
+  }
+  renderNote(); startCountdown();
+};
+
+/* « last / next » */
+$("lastBtn").onclick=()=>{
+  if(dayNum(dateFor(viewOffset))<=0) return;
+  viewOffset++; renderDay(false); startCountdown();
+};
+$("nextBtn").onclick=()=>{
+  if(viewOffset<=0) return;
+  viewOffset--; renderDay(false); startCountdown();
+};
+
 async function loadSeen(){
   $("seen").textContent="";
   const n=await apiSeen();
   if(n!=null) $("seen").textContent="seen by "+n+(n===1?" person":" people");
 }
-
-/* shared note: load, show, edit, save */
-async function loadNote(){
-  const res=await apiGetNote();
-  if(res.ok){ noteBackend="api"; currentNote=res.note; }
-  else{ noteBackend="local"; const l=localStorage.getItem("tb_note"); currentNote=l?JSON.parse(l):null; }
-  currentNoteText = currentNote ? (await decNote(currentNote))||"" : "";
-  renderNote();
-}
-function renderNote(){
-  const v=$("noteView");
-  if(currentNoteText && currentNoteText.trim()){
-    v.innerHTML=escapeHtml(currentNoteText)+'<span class="stamp">tap to edit · updated '+ago(currentNote.updatedAt)+'</span>';
-  }else{
-    v.innerHTML='<span class="empty">tap to leave a little note…</span>';
-  }
-  $("noteEdit").classList.add("hidden");
-  v.classList.remove("hidden");
-}
-$("noteView").onclick=()=>{
-  pauseCountdown();
-  $("noteInput").value=currentNoteText;
-  $("noteView").classList.add("hidden");
-  $("noteEdit").classList.remove("hidden");
-  $("noteInput").focus();
-};
-$("noteCancel").onclick=()=>{ renderNote(); startCountdown(); };
-$("noteSave").onclick=async ()=>{
-  const text=$("noteInput").value.trim();
-  $("noteSave").textContent="saving…"; $("noteSave").disabled=true;
-  const o=await encNote(text);
-  await saveNote(o);
-  currentNote=o; currentNoteText=text;
-  $("noteSave").textContent="save"; $("noteSave").disabled=false;
-  renderNote(); startCountdown();
-};
 
 /* ---- floating hearts ---- */
 (function(){
@@ -636,13 +756,11 @@ $("muteBtn").innerHTML=VOL_ON;
 $("muteBtn").onclick=()=>{ muted=!muted; $("muteBtn").innerHTML=muted?VOL_OFF:VOL_ON; if(synth)synth.volume.value=muted?-Infinity:-14; if(audioEl)audioEl.volume=muted?0:0.85; };
 $("stopBtn").innerHTML=STOP_ICON;
 $("stopBtn").onclick=()=>{
-  if(musicStopped){                        // currently stopped -> start it again
-    musicStopped=false; $("stopBtn").innerHTML=STOP_ICON;
-    $("stopBtn").setAttribute("aria-label","Stop music");
+  if(musicStopped){
+    musicStopped=false; $("stopBtn").innerHTML=STOP_ICON; $("stopBtn").setAttribute("aria-label","Stop music");
     if(!muted) startMusic();
-  }else{                                    // currently playing -> stop it
-    musicStopped=true; stopMusic(); $("stopBtn").innerHTML=PLAY_ICON;
-    $("stopBtn").setAttribute("aria-label","Play music");
+  }else{
+    musicStopped=true; stopMusic(); $("stopBtn").innerHTML=PLAY_ICON; $("stopBtn").setAttribute("aria-label","Play music");
   }
 };
 buildKeys(); fillCities(); loadEnc(); loadNews();
