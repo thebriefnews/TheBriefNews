@@ -601,7 +601,6 @@ function showLove(){
   musicStopped=false; $("stopBtn").innerHTML=STOP_ICON;
   if(!muted) startMusic();
   startCountdown();
-  loadSeen();
   renderDay(true);                      // true = count this as an open
 }
 function startCountdown(){ clearInterval(timer); remaining=revealSeconds; updateRing(); timer=setInterval(()=>{remaining--;updateRing();if(remaining<=0)endLove();},1000); }
@@ -736,11 +735,6 @@ $("nextBtn").onclick=()=>{
   viewOffset--; renderDay(false); startCountdown();
 };
 
-async function loadSeen(){
-  $("seen").textContent="";
-  const n=await apiSeen();
-  if(n!=null) $("seen").textContent="seen by "+n+(n===1?" person":" people");
-}
 
 /* ---- floating hearts ---- */
 (function(){
